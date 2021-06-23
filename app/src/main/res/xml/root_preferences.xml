@@ -1,0 +1,56 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Quiz">
+
+        <CheckBoxPreference
+            android:title="Use random backgrounds"
+            app:key="random_bgs" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Music">
+
+        <CheckBoxPreference
+            android:title="Loop tracks"
+            app:key="tracks_loop" />
+
+        <CheckBoxPreference
+            app:key="cover_options"
+            app:title="Use covers as options" />
+
+        <ListPreference
+            android:defaultValue="op_only"
+            android:entries="@array/theme_entries"
+            android:entryValues="@array/theme_values"
+            app:key="themes_used"
+            app:title="Themes used"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/sync_header">
+
+        <CheckBoxPreference
+            app:key="mal_sync"
+            app:title="Use MAL account" />
+
+        <Preference
+            android:dependency="mal_sync"
+            app:key="mal_token"
+            app:title="Get MAL token" />
+
+        <!--<Preference
+            android:dependency="mal_refresh"
+            app:key="mal_refresh"
+            app:title="Refresh MAL token" />-->
+
+        <EditTextPreference
+            app:defaultValue="100"
+            app:key="sync_amt"
+            app:title="Amount of entries pulled"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
