@@ -26,6 +26,8 @@ import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
+
+// to be removed
 class AniQuestionActivity : AppCompatActivity(), View.OnClickListener
 {
     // Visuals
@@ -546,9 +548,11 @@ class AniQuestionActivity : AppCompatActivity(), View.OnClickListener
         return when
         {
             question.link != null -> question.link
-            Globals.themeSrc == ThemeSrc.AA -> AAApi.getAATheme(question.aniID, (preferences != null && preferences!!.getString("themes_used", "")!! == "op_only"))
+            Globals.themeSrc == ThemeSrc.AA -> AAApi.getThemeVideo(question.aniID)
             Globals.themeSrc == ThemeSrc.ATA ->
             {
+                ATAApi.getThemeAudio(question.aniID) ?: ATAApi.getThemeVideo(question.aniID)
+                /*
                 val qLinks = ATAApi.getATATheme(question.aniID, (preferences != null && preferences!!.getString("themes_used", "")!! == "op_only"))
                 if(qLinks != null)
                 {
@@ -569,6 +573,7 @@ class AniQuestionActivity : AppCompatActivity(), View.OnClickListener
                     // API did not return anything
                     null
                 }
+                */
             }
             // No API used, can't retrieve anything
             else -> null
@@ -579,9 +584,11 @@ class AniQuestionActivity : AppCompatActivity(), View.OnClickListener
         return when
         {
             question.link != null -> question.link
-            Globals.themeSrc == ThemeSrc.AA -> AAApi.getAATheme(question.aniID, (preferences != null && preferences!!.getString("themes_used", "")!! == "op_only"))
+            Globals.themeSrc == ThemeSrc.AA -> AAApi.getThemeVideo(question.aniID)
             Globals.themeSrc == ThemeSrc.ATA ->
             {
+                ATAApi.getThemeAudio(question.aniID) ?: ATAApi.getThemeVideo(question.aniID)
+                /*
                 val qLinks = ATAApi.getATATheme(question.aniID, (preferences != null && preferences!!.getString("themes_used", "")!! == "op_only"))
                 if(qLinks != null)
                 {
@@ -602,6 +609,7 @@ class AniQuestionActivity : AppCompatActivity(), View.OnClickListener
                     // API did not return anything
                     null
                 }
+                */
             }
             // No API used, can't retrieve anything
             else -> null

@@ -26,6 +26,9 @@ class MainActivity : AppCompatActivity()
         btn_aniquiz.setOnClickListener{
             startActivity(Intent(this, QuizSetupActivity::class.java))
         }
+        btn_musquiz.setOnClickListener{
+            startActivity(Intent(this, MusicQuizActivity::class.java))
+        }
         btn_settings.setOnClickListener{
             startActivity(Intent(this, SettingsActivity::class.java))
         }
