@@ -22,7 +22,11 @@ class MusicQuizActivity : AppCompatActivity()
 {
     private var preferences: SharedPreferences? = null
     private var exoPlayer: SimpleExoPlayer? = null
+    private var exoPlayerPreload: SimpleExoPlayer? = null
     private var mediaAPI: MediaAPI? = null
+    private var questionID: Int? = null
+    private var questionTime: Int = 10000
+    private var answerTime: Int = 5000
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -33,9 +37,18 @@ class MusicQuizActivity : AppCompatActivity()
 
         preferences = getSharedPreferences(applicationContext.packageName + "_preferences", Context.MODE_PRIVATE)
 
-        var adapter = ArrayAdapter<String>(this, R.layout.spinner_item, Globals.aniNames.values.toList())
+        var adapter = ArrayAdapter<String>(this, R.layout.spinner_item, Globals.aniNames.values.flatten())
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         actv_title.setAdapter(adapter)
+
+        questionTime = 10000
+        answerTime = 5000
+
+        cm_answertimer.isCountDown = true
+
+        initialPhase()
+
+        /*
 
         exoPlayer = SimpleExoPlayer.Builder(applicationContext).build().also { exoPlayer ->
             pv_video.player = exoPlayer
@@ -102,7 +115,6 @@ class MusicQuizActivity : AppCompatActivity()
         CoroutineScope(Main).launch {
             //val link = mediaAPI?.getThemeAudio(aniID) ?: mediaAPI?.getThemeVideo(aniID) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
             val link = mediaAPI?.getThemeVideo(aniID) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
-            exoPlayer?.addMediaItem(MediaItem.fromUri("https://animethemes.moe/video/AkuNoHana-OP1.webm"))
             withContext(Dispatchers.Main)
             {
                 Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
@@ -113,6 +125,147 @@ class MusicQuizActivity : AppCompatActivity()
                 exoPlayer!!.prepare()
             }
         }
+        */
+    }
+
+    private fun initialPhase()
+    {
+        exoPlayerPreload = SimpleExoPlayer.Builder(applicationContext).build().also { exoPlayer ->
+            pv_video.player = exoPlayer
+        }
+        exoPlayerPreload?.playWhenReady = false
+
+        exoPlayerPreload?.addListener(object : Player.Listener
+        {
+            override fun onPlaybackStateChanged(state: Int)
+            {
+                super.onPlaybackStateChanged(state)
+                when (state)
+                {
+                    Player.STATE_READY ->
+                    {
+                        Toast.makeText(applicationContext, "Playing", Toast.LENGTH_SHORT).show()
+                        //pv_video.visibility = View.INVISIBLE
+                        exoPlayer?.release()
+                        exoPlayer = exoPlayerPreload
+
+                        questionPhase()
+                    }
+                    Player.STATE_IDLE ->
+                    {
+                        Toast.makeText(applicationContext, "Player failed", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+
+        questionID = Globals.aniNames.keys.random()
+        tv_title.text = Globals.aniNames[questionID!!]!![0] + "(init)"
+
+        CoroutineScope(Main).launch {
+            //val link = mediaAPI?.getThemeAudio(aniID) ?: mediaAPI?.getThemeVideo(aniID) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
+            val link = mediaAPI?.getThemeVideo(questionID!!) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
+            withContext(Dispatchers.Main)
+            {
+                Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
+            }
+            withContext(Dispatchers.Main)
+            {
+                exoPlayerPreload!!.setMediaItem(MediaItem.fromUri(link))
+                exoPlayerPreload!!.prepare()
+            }
+        }
+
+    }
+
+    private fun questionPhase()
+    {
+        tv_title.text = Globals.aniNames[questionID!!]!![0] + "(question)"
+        pv_video.player = exoPlayer
+        exoPlayer?.play()
+
+        cm_answertimer.base = SystemClock.elapsedRealtime() + questionTime
+        cm_answertimer.onChronometerTickListener = Chronometer.OnChronometerTickListener { chronometer ->
+            if (chronometer.base <= SystemClock.elapsedRealtime())
+            {
+                chronometer.stop()
+                answerPhase()
+            }
+        }
+        cm_answertimer.start()
+    }
+
+    private fun answerPhase()
+    {
+        tv_title.text = Globals.aniNames[questionID!!]!![0] + "(answer)"
+
+        if(actv_title.text.toString() in Globals.aniNames[questionID!!]!!)
+        {
+            Toast.makeText(applicationContext, "Correct", Toast.LENGTH_SHORT).show()
+        }
+        else
+        {
+            Toast.makeText(applicationContext, "Incorrect", Toast.LENGTH_SHORT).show()
+        }
+        actv_title.setText("")
+
+        cm_answertimer.base = SystemClock.elapsedRealtime() + answerTime
+        cm_answertimer.onChronometerTickListener = Chronometer.OnChronometerTickListener { chronometer ->
+            if (chronometer.base <= SystemClock.elapsedRealtime())
+            {
+                chronometer.stop()
+                preloadPhase()
+            }
+        }
+        cm_answertimer.start()
+
+    }
+
+    private fun preloadPhase()
+    {
+        questionID = Globals.aniNames.keys.random()
+        tv_title.text = Globals.aniNames[questionID!!]!![0] + "(preload)"
+
+        exoPlayerPreload = SimpleExoPlayer.Builder(applicationContext).build()
+        exoPlayerPreload?.playWhenReady = false
+
+        exoPlayerPreload?.addListener(object : Player.Listener
+        {
+            override fun onPlaybackStateChanged(state: Int)
+            {
+                super.onPlaybackStateChanged(state)
+                when (state)
+                {
+                    Player.STATE_READY ->
+                    {
+                        Toast.makeText(applicationContext, "Playing", Toast.LENGTH_SHORT).show()
+                        //pv_video.visibility = View.INVISIBLE
+                        exoPlayer?.release()
+                        exoPlayer = exoPlayerPreload
+
+                        questionPhase()
+                    }
+                    Player.STATE_IDLE ->
+                    {
+                        Toast.makeText(applicationContext, "Player failed", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+
+        CoroutineScope(Main).launch {
+            //val link = mediaAPI?.getThemeAudio(aniID) ?: mediaAPI?.getThemeVideo(aniID) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
+            val link = mediaAPI?.getThemeVideo(questionID!!) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
+            withContext(Dispatchers.Main)
+            {
+                Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
+            }
+            withContext(Dispatchers.Main)
+            {
+                exoPlayerPreload!!.setMediaItem(MediaItem.fromUri(link))
+                exoPlayerPreload!!.prepare()
+            }
+        }
     }
 
     override fun onStop()
@@ -120,6 +273,7 @@ class MusicQuizActivity : AppCompatActivity()
         super.onStop()
         Toast.makeText(applicationContext, "Stop", Toast.LENGTH_SHORT).show()
         exoPlayer?.release()
+        exoPlayerPreload?.release()
         finish()
     }
 }

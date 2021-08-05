@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity()
 
         // Main menu - 2 buttons
         btn_aniquiz.setOnClickListener{
-            startActivity(Intent(this, QuizSetupActivity::class.java))
+            //startActivity(Intent(this, QuizSetupActivity::class.java))
         }
         btn_musquiz.setOnClickListener{
             startActivity(Intent(this, MusicQuizActivity::class.java))

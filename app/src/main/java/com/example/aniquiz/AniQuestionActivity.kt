@@ -152,13 +152,13 @@ class AniQuestionActivity : AppCompatActivity(), View.OnClickListener
         {
             if(i != mCorrectOption - 1)
             {
-                optButtons!![i].text = Globals.aniNames[options[i]]
+                optButtons!![i].text = "Globals.aniNames[options[i]]"
                 Glide.with(applicationContext).load(Globals.aniCovers[options[i]]).transform(roundedCorners).placeholder(circularProgressDrawable).into(optIVs!![i])
             }
         }
 
         // Fill the correct option
-        optButtons!![mCorrectOption - 1].text = Globals.aniNames[question.aniID]
+        optButtons!![mCorrectOption - 1].text = "Globals.aniNames[question.aniID]"
         Glide.with(applicationContext).load(Globals.aniCovers[question.aniID]).transform(roundedCorners).placeholder(circularProgressDrawable).into(optIVs!![mCorrectOption - 1])
 
         // Show loading text

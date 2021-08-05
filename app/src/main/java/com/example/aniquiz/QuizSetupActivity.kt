@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+/*
 class QuizSetupActivity : AppCompatActivity()
 {
     override fun onCreate(savedInstanceState: Bundle?)
@@ -192,4 +192,6 @@ class QuizSetupActivity : AppCompatActivity()
             finish()
         }
     }
+
 }
+*/

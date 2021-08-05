@@ -13,16 +13,16 @@ object Globals
 
     // Local data
     private val localAniNames = mapOf(
-        20 to "Naruto",
-        1535 to "Death Note",
-        5114 to "Fullmetal Alchemist: Brotherhood",
-        9253 to "Steins;Gate",
-        11757 to "Sword Art Online",
-        16498 to "Shingeki no Kyojin",
-        22319 to "Tokyo Ghoul",
-        30276 to "One Punch Man",
-        31964 to "Boku no Hero Academia",
-        32281 to "Kimi no Na wa."
+        20 to listOf("Naruto"),
+        1535 to listOf("Death Note"),
+        5114 to listOf("Fullmetal Alchemist: Brotherhood"),
+        9253 to listOf("Steins;Gate"),
+        11757 to listOf("Sword Art Online"),
+        16498 to listOf("Shingeki no Kyojin", "Attack on Titan"),
+        22319 to listOf("Tokyo Ghoul"),
+        30276 to listOf("One Punch Man"),
+        31964 to listOf("Boku no Hero Academia"),
+        32281 to listOf("Kimi no Na wa.")
     )
     private val localAniCovers = mapOf(
         20 to "https://cdn.myanimelist.net/images/anime/13/17405l.webp",
@@ -85,7 +85,7 @@ object Globals
         aniNames = localAniNames
         aniCovers = localAniCovers
     }
-
+/*
     suspend fun syncToJikan() : Boolean
     {
         // Set current anime list and covers to MAL top 50 (pulled from Jikan)
@@ -148,6 +148,8 @@ object Globals
             return false
         }
     }
+
+ */
 
     fun getAniQuestions(amt: Int): ArrayList<AniQuestion>
     {

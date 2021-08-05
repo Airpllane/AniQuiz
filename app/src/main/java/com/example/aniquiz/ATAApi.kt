@@ -104,7 +104,6 @@ object ATAApi : MediaAPI
                         val audioQLink = node.getJSONArray("mirrors").getJSONObject(0).getString("audio")
                         val videoLink = node.getJSONArray("mirrors").getJSONObject(0).getString("mirror")
 
-                        themeList.add(audioQLink)
                         themeList.add(
                             when (Type)
                             {
