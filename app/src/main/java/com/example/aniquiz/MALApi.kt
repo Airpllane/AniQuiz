@@ -11,45 +11,32 @@ import org.json.JSONObject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-object MALApi
+object MALApi : DataAPI
 {
     const val client_id = "cbb6efcaadfa78638ad7456d1d5a95dd"
 
-    suspend fun getTop50Anime() = suspendCoroutine<Map<Int, Map<String, String>>?> { continuation ->
-        val url = "https://api.jikan.moe/v3/top/anime/1/tv"
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            Response.Listener { response ->
-                val jsonArray = JSONObject(response).getJSONArray("top")
-                val aniMap = mutableMapOf<Int, MutableMap<String, String>>()
-                for (i in 0 until jsonArray.length())
-                {
-                    val node: JSONObject = jsonArray.getJSONObject(i)
-                    aniMap.put(node.getInt("mal_id"), mutableMapOf())
-                    aniMap[node.getInt("mal_id")]!!.put("title", node.getString("title"))
-                    aniMap[node.getInt("mal_id")]!!.put("cover", node.getString("image_url"))
-                }
-                continuation.resume(aniMap.toMap())
-            },
-            Response.ErrorListener { error ->
-                continuation.resume(null)
-            })
-        RequestClass.getInstance(GlobalContext.appContext!!).addToRequestQueue(stringRequest)
-    }
-
-    suspend fun getTopAnime(amt: Int) = suspendCoroutine<Map<Int, Map<String, String>>?> { continuation ->
-        val url = "https://api.myanimelist.net/v2/anime/ranking?ranking_type=all&limit=$amt"
+    override suspend fun getAnimeList(amt: Int) = suspendCoroutine<Map<Int, Map<String, List<String>>>?> { continuation ->
+        val url = "https://api.myanimelist.net/v2/anime/ranking?fields=alternative_titles&ranking_type=all&limit=$amt"
         val stringRequest = object : StringRequest(
             Request.Method.GET, url,
             Response.Listener { response ->
                 val jsonArray = JSONObject(response).getJSONArray("data")
-                val aniMap = mutableMapOf<Int, MutableMap<String, String>>()
+                val aniMap = mutableMapOf<Int, MutableMap<String, MutableList<String>>>()
                 for (i in 0 until jsonArray.length())
                 {
                     val node: JSONObject = jsonArray.getJSONObject(i).getJSONObject("node")
-                    aniMap.put(node.getInt("id"), mutableMapOf())
-                    aniMap[node.getInt("id")]!!.put("title", node.getString("title"))
-                    aniMap[node.getInt("id")]!!.put("cover", node.getJSONObject("main_picture").getString("medium"))
+                    aniMap.put(node.getInt("id"), mutableMapOf("titles" to mutableListOf(), "covers" to mutableListOf()))
+                    aniMap[node.getInt("id")]!!["titles"]!!.add(node.getString("title"))
+                    aniMap[node.getInt("id")]!!["covers"]!!.add(node.getJSONObject("main_picture").getString("medium"))
+                    val alternativeTitles = node.getJSONObject("alternative_titles")
+                    val synonyms = alternativeTitles.getJSONArray("synonyms")
+                    for (i in 0 until synonyms.length())
+                    {
+                        aniMap[node.getInt("id")]!!["titles"]!!.add(synonyms.getString(i))
+                    }
+                    aniMap[node.getInt("id")]!!["titles"]!!.add(alternativeTitles.getString("en"))
+                    aniMap[node.getInt("id")]!!["titles"]!!.add(alternativeTitles.getString("ja"))
+                    aniMap[node.getInt("id")]!!["titles"] = aniMap[node.getInt("id")]!!["titles"]!!.distinct().toMutableList()
                 }
                 continuation.resume(aniMap.toMap())
             },
@@ -65,19 +52,28 @@ object MALApi
         RequestClass.getInstance(GlobalContext.appContext!!).addToRequestQueue(stringRequest)
     }
 
-    suspend fun getCompletedAnime(amt: Int) = suspendCoroutine<Map<Int, Map<String, String>>?> { continuation ->
-        val url = "https://api.myanimelist.net/v2/users/@me/animelist?status=completed&sort=list_score&limit=$amt"
+    suspend fun getUserAnimeList(amt: Int) = suspendCoroutine<Map<Int, Map<String, List<String>>>?> { continuation ->
+        val url = "https://api.myanimelist.net/v2/users/@me/animelist?fields=alternative_titles&status=completed&sort=list_score&limit=$amt"
         val stringRequest = object : StringRequest(
             Request.Method.GET, url,
             Response.Listener { response ->
                 val jsonArray = JSONObject(response).getJSONArray("data")
-                val aniMap = mutableMapOf<Int, MutableMap<String, String>>()
+                val aniMap = mutableMapOf<Int, MutableMap<String, MutableList<String>>>()
                 for (i in 0 until jsonArray.length())
                 {
                     val node: JSONObject = jsonArray.getJSONObject(i).getJSONObject("node")
-                    aniMap.put(node.getInt("id"), mutableMapOf())
-                    aniMap[node.getInt("id")]!!.put("title", node.getString("title"))
-                    aniMap[node.getInt("id")]!!.put("cover", node.getJSONObject("main_picture").getString("medium"))
+                    aniMap.put(node.getInt("id"), mutableMapOf("titles" to mutableListOf(), "covers" to mutableListOf()))
+                    aniMap[node.getInt("id")]!!["titles"]!!.add(node.getString("title"))
+                    aniMap[node.getInt("id")]!!["covers"]!!.add(node.getJSONObject("main_picture").getString("medium"))
+                    val alternativeTitles = node.getJSONObject("alternative_titles")
+                    val synonyms = alternativeTitles.getJSONArray("synonyms")
+                    for (i in 0 until synonyms.length())
+                    {
+                        aniMap[node.getInt("id")]!!["titles"]!!.add(synonyms.getString(i))
+                    }
+                    aniMap[node.getInt("id")]!!["titles"]!!.add(alternativeTitles.getString("en"))
+                    aniMap[node.getInt("id")]!!["titles"]!!.add(alternativeTitles.getString("ja"))
+                    aniMap[node.getInt("id")]!!["titles"] = aniMap[node.getInt("id")]!!["titles"]!!.distinct().toMutableList()
                 }
                 continuation.resume(aniMap.toMap())
             },

@@ -7,6 +7,8 @@ object Globals
     // Strings for intent extras
     const val userName: String = "User"
     const val questionCount: String = "QuestionCount"
+    const val questionTime: String = "QuestionTime"
+    const val answerTime: String = "AnswerTime"
     const val score: String = "Score"
     const val questionList: String = "QuestionList"
     const val baseScore: String = "BaseScore"
@@ -106,18 +108,19 @@ object Globals
             return false
         }
     }
+    */
 
     suspend fun syncToMyMAL(amt: Int) : Boolean
     {
         // Set current anime list and covers to user's completed MAL anime
-        val MALResponse = MALApi.getCompletedAnime(amt)
+        val MALResponse = MALApi.getUserAnimeList(amt)
         if(MALResponse != null)
         {
             aniNames = MALResponse.map { (key, value) ->
-                key to value.getOrDefault("title", "(Missing title)")
+                key to value.getOrDefault("titles", listOf("(Missing title)"))
             }.toMap()
             aniCovers = MALResponse.map { (key, value) ->
-                key to value.getOrDefault("cover", "https://banner2.cleanpng.com/20180402/tww/kisspng-emoji-iphone-text-messaging-sms-no-symbol-no-5ac1fb2a90a786.7966473015226621865925.jpg")
+                key to value.getOrDefault("covers", listOf("https://banner2.cleanpng.com/20180402/tww/kisspng-emoji-iphone-text-messaging-sms-no-symbol-no-5ac1fb2a90a786.7966473015226621865925.jpg")).random()
             }.toMap()
             return true
         }
@@ -127,18 +130,19 @@ object Globals
             return false
         }
     }
+
 
     suspend fun syncToTopMAL(amt: Int) : Boolean
     {
         // Set current anime list and covers to MAL's "Top anime" list
-        val MALResponse = MALApi.getTopAnime(amt)
+        val MALResponse = MALApi.getAnimeList(amt)
         if(MALResponse != null)
         {
             aniNames = MALResponse.map { (key, value) ->
-                key to value.getOrDefault("title", "(Missing title)")
+                key to value.getOrDefault("title", listOf("(Missing title)"))
             }.toMap()
             aniCovers = MALResponse.map { (key, value) ->
-                key to value.getOrDefault("cover", "https://banner2.cleanpng.com/20180402/tww/kisspng-emoji-iphone-text-messaging-sms-no-symbol-no-5ac1fb2a90a786.7966473015226621865925.jpg")
+                key to value.getOrDefault("cover", listOf("https://banner2.cleanpng.com/20180402/tww/kisspng-emoji-iphone-text-messaging-sms-no-symbol-no-5ac1fb2a90a786.7966473015226621865925.jpg")).random()
             }.toMap()
             return true
         }
@@ -149,7 +153,7 @@ object Globals
         }
     }
 
- */
+
 
     fun getAniQuestions(amt: Int): ArrayList<AniQuestion>
     {

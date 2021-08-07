@@ -35,16 +35,6 @@
                 android:textStyle="bold" />
 
             <Button
-                android:id="@+id/btn_aniquiz"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:background="@drawable/default_option_border_bg"
-                android:text="@string/title_activity_quiz"
-                android:textColor="@color/transparent_white"
-                android:textSize="18sp"/>
-
-            <Button
                 android:id="@+id/btn_musquiz"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

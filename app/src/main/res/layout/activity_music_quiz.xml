@@ -56,6 +56,7 @@
                 android:textColor="@color/white"
                 android:textSize="25sp"
                 android:textStyle="bold"
+                android:enabled="false"
                 tools:text="Title"/>
 
 

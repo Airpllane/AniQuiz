@@ -1,22 +1,21 @@
 package com.example.aniquiz
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Chronometer
 import android.widget.Toast
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
-import kotlinx.android.synthetic.main.activity_aniquestion.*
 import kotlinx.android.synthetic.main.activity_music_quiz.*
-import kotlinx.android.synthetic.main.activity_quiz_setup.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
+
 
 class MusicQuizActivity : AppCompatActivity()
 {
@@ -27,6 +26,10 @@ class MusicQuizActivity : AppCompatActivity()
     private var questionID: Int? = null
     private var questionTime: Int = 10000
     private var answerTime: Int = 5000
+    private var animeBank: List<Int>? = null
+    private var questionCount: Int = 5
+    private var questionNum: Int = 0
+    private var correctAnswers: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -37,95 +40,27 @@ class MusicQuizActivity : AppCompatActivity()
 
         preferences = getSharedPreferences(applicationContext.packageName + "_preferences", Context.MODE_PRIVATE)
 
-        var adapter = ArrayAdapter<String>(this, R.layout.spinner_item, Globals.aniNames.values.flatten())
+        val adapter = ArrayAdapter<String>(applicationContext, R.layout.spinner_item, Globals.aniNames.values.flatten())
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         actv_title.setAdapter(adapter)
 
-        questionTime = 10000
-        answerTime = 5000
+        questionCount = intent.getIntExtra(Globals.questionCount, 5)
+        questionTime = intent.getIntExtra(Globals.questionTime, 10) * 1000
+        answerTime = intent.getIntExtra(Globals.answerTime, 5) * 1000
 
         cm_answertimer.isCountDown = true
 
-        initialPhase()
-
-        /*
-
-        exoPlayer = SimpleExoPlayer.Builder(applicationContext).build().also { exoPlayer ->
-            pv_video.player = exoPlayer
-        }
-        exoPlayer?.playWhenReady = false
-
-        exoPlayer?.addListener(object : Player.Listener
-        {
-            override fun onPlaybackStateChanged(state: Int)
-            {
-                super.onPlaybackStateChanged(state)
-                when (state)
-                {
-                    Player.STATE_READY ->
-                    {
-                        Toast.makeText(applicationContext, "Playing", Toast.LENGTH_SHORT).show()
-                        //pv_video.visibility = View.INVISIBLE
-                        exoPlayer?.play()
-                        cm_answertimer.isCountDown = true
-                        cm_answertimer.base = SystemClock.elapsedRealtime() + 15000
-                        cm_answertimer.onChronometerTickListener = Chronometer.OnChronometerTickListener { chronometer ->
-                            if (chronometer.base <= SystemClock.elapsedRealtime() || exoPlayer == null || !exoPlayer!!.isPlaying)
-                            {
-                                chronometer.stop()
-
-                                val exoPlayer2 = SimpleExoPlayer.Builder(applicationContext).build()
-                                exoPlayer2.playWhenReady = false
-                                exoPlayer2.setMediaItem(MediaItem.fromUri("https://animethemes.moe/video/AkuNoHana-OP1.webm"))
-
-                                exoPlayer2.addListener(object : Player.Listener
-                                {
-                                    override fun onPlaybackStateChanged(state: Int)
-                                    {
-                                        super.onPlaybackStateChanged(state)
-                                        when (state)
-                                        {
-                                            Player.STATE_READY ->
-                                            {
-                                                Toast.makeText(applicationContext, "Next", Toast.LENGTH_SHORT).show()
-                                                pv_video.player = exoPlayer2
-                                                exoPlayer2.play()
-                                                exoPlayer?.release()
-                                            }
-                                        }
-                                    }
-                                })
-                                exoPlayer2.prepare()
-                                //pv_video.visibility = View.VISIBLE
-                            }
-                        }
-                        cm_answertimer.start()
-                    }
-                    Player.STATE_IDLE ->
-                    {
-                        Toast.makeText(applicationContext, "Player failed", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        })
-
-        val aniID = Globals.aniNames.keys.random()
-        tv_title.text = Globals.aniNames[aniID]
+        tv_title.text = "Loading..."
 
         CoroutineScope(Main).launch {
-            //val link = mediaAPI?.getThemeAudio(aniID) ?: mediaAPI?.getThemeVideo(aniID) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
-            val link = mediaAPI?.getThemeVideo(aniID) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
-            withContext(Dispatchers.Main)
+            animeBank = mediaAPI!!.getAnimeList()!!.intersect(Globals.aniNames.keys).toList()
+            if (animeBank.isNullOrEmpty())
             {
-                Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Empty bank", Toast.LENGTH_SHORT).show()
             }
-            withContext(Dispatchers.Main)
-            {
-                exoPlayer!!.setMediaItem(MediaItem.fromUri(link))
-                exoPlayer!!.prepare()
-            }
+            initialPhase()
         }
-        */
+
     }
 
     private fun initialPhase()
@@ -159,12 +94,11 @@ class MusicQuizActivity : AppCompatActivity()
             }
         })
 
-        questionID = Globals.aniNames.keys.random()
-        tv_title.text = Globals.aniNames[questionID!!]!![0] + "(init)"
+        questionID = animeBank!!.random()
+
 
         CoroutineScope(Main).launch {
-            //val link = mediaAPI?.getThemeAudio(aniID) ?: mediaAPI?.getThemeVideo(aniID) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
-            val link = mediaAPI?.getThemeVideo(questionID!!) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
+            val link = mediaAPI?.getThemeAudio(questionID!!) ?: mediaAPI?.getThemeVideo(questionID!!) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
             withContext(Dispatchers.Main)
             {
                 Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
@@ -180,7 +114,9 @@ class MusicQuizActivity : AppCompatActivity()
 
     private fun questionPhase()
     {
-        tv_title.text = Globals.aniNames[questionID!!]!![0] + "(question)"
+        tv_title.text = "???"
+        questionNum++
+        actv_title.isEnabled = true
         pv_video.player = exoPlayer
         exoPlayer?.play()
 
@@ -197,24 +133,32 @@ class MusicQuizActivity : AppCompatActivity()
 
     private fun answerPhase()
     {
-        tv_title.text = Globals.aniNames[questionID!!]!![0] + "(answer)"
+        tv_title.text = Globals.aniNames[questionID!!]!![0]
 
-        if(actv_title.text.toString() in Globals.aniNames[questionID!!]!!)
+        if (actv_title.text.toString() in Globals.aniNames[questionID!!]!!)
         {
             Toast.makeText(applicationContext, "Correct", Toast.LENGTH_SHORT).show()
+            correctAnswers++
         }
         else
         {
             Toast.makeText(applicationContext, "Incorrect", Toast.LENGTH_SHORT).show()
         }
-        actv_title.setText("")
+        actv_title.isEnabled = false
 
         cm_answertimer.base = SystemClock.elapsedRealtime() + answerTime
         cm_answertimer.onChronometerTickListener = Chronometer.OnChronometerTickListener { chronometer ->
             if (chronometer.base <= SystemClock.elapsedRealtime())
             {
                 chronometer.stop()
-                preloadPhase()
+                if(questionNum >= questionCount)
+                {
+                    endPhase()
+                }
+                else
+                {
+                    preloadPhase()
+                }
             }
         }
         cm_answertimer.start()
@@ -223,8 +167,9 @@ class MusicQuizActivity : AppCompatActivity()
 
     private fun preloadPhase()
     {
-        questionID = Globals.aniNames.keys.random()
-        tv_title.text = Globals.aniNames[questionID!!]!![0] + "(preload)"
+        questionID = animeBank!!.random()
+        tv_title.text = "Loading..."
+        actv_title.setText("")
 
         exoPlayerPreload = SimpleExoPlayer.Builder(applicationContext).build()
         exoPlayerPreload?.playWhenReady = false
@@ -254,8 +199,7 @@ class MusicQuizActivity : AppCompatActivity()
         })
 
         CoroutineScope(Main).launch {
-            //val link = mediaAPI?.getThemeAudio(aniID) ?: mediaAPI?.getThemeVideo(aniID) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
-            val link = mediaAPI?.getThemeVideo(questionID!!) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
+            val link = mediaAPI?.getThemeAudio(questionID!!) ?: mediaAPI?.getThemeVideo(questionID!!) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
             withContext(Dispatchers.Main)
             {
                 Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
@@ -266,6 +210,24 @@ class MusicQuizActivity : AppCompatActivity()
                 exoPlayerPreload!!.prepare()
             }
         }
+    }
+
+    private fun endPhase()
+    {
+        tv_title.text = "Finishing..."
+        cm_answertimer.base = SystemClock.elapsedRealtime() + 10000
+        cm_answertimer.onChronometerTickListener = Chronometer.OnChronometerTickListener { chronometer ->
+            if (chronometer.base <= SystemClock.elapsedRealtime())
+            {
+                chronometer.stop()
+                val intent = Intent(this, ResultActivity::class.java)
+                intent.putExtra(Globals.questionCount, questionCount)
+                intent.putExtra(Globals.score, correctAnswers)
+                startActivity(intent)
+                finish()
+            }
+        }
+        cm_answertimer.start()
     }
 
     override fun onStop()

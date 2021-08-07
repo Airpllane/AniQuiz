@@ -44,28 +44,6 @@
                 android:textSize="20sp"
                 tools:text="Score: 10" />
 
-            <TextView
-                android:id="@+id/tv_high_score"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center"
-                android:textColor="@color/transparent_white"
-                android:textSize="20sp"
-                tools:text="High score: 100" />
-
-            <TextView
-                android:id="@+id/tv_new_high_score"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:text="@string/new_high_score"
-                android:textColor="@color/white"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                android:visibility="visible" />
-
             <Button
                 android:id="@+id/btn_finish"
                 android:layout_width="match_parent"

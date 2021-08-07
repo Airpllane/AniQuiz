@@ -85,6 +85,43 @@
                         android:layout_height="60dp" />
                 </TableRow>
 
+                <TableRow android:gravity="center">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:text="Time to answer"
+                        android:textColor="@color/transparent_white"
+                        android:textSize="18sp" />
+
+                    <Space android:layout_weight="1" />
+
+                    <NumberPicker
+                        android:id="@+id/np_question_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp" />
+                </TableRow>
+
+
+                <TableRow android:gravity="center">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:text="Show answer for"
+                        android:textColor="@color/transparent_white"
+                        android:textSize="18sp" />
+
+                    <Space android:layout_weight="1" />
+
+                    <NumberPicker
+                        android:id="@+id/np_answer_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp" />
+                </TableRow>
+
                 <Button
                     android:id="@+id/btn_start_quiz"
                     android:layout_width="match_parent"

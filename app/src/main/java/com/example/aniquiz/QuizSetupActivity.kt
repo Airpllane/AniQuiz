@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-/*
+
 class QuizSetupActivity : AppCompatActivity()
 {
     override fun onCreate(savedInstanceState: Bundle?)
@@ -43,27 +43,6 @@ class QuizSetupActivity : AppCompatActivity()
                         // Use only local data
                         Globals.syncToLocal()
                         btn_start_quiz.isEnabled = true
-                    }
-                    "MAL Top 50 (Jikan)" ->
-                    {
-                        // Try to connect to Jikan, wait for answer
-                        GlobalScope.launch {
-                            if(Globals.syncToJikan())
-                            {
-                                // Connection successful, enable the button
-                                runOnUiThread {
-                                    btn_start_quiz.isEnabled = true
-                                }
-                            }
-                            else
-                            {
-                                // Connection failed, alert user
-                                withContext(Dispatchers.Main)
-                                {
-                                    Toast.makeText(applicationContext, "Failed to connect to Jikan", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
                     }
                     "My List (MAL)" ->
                     {
@@ -181,17 +160,24 @@ class QuizSetupActivity : AppCompatActivity()
         np_question_amt.minValue = 1
         np_question_amt.maxValue = 20
 
+        np_question_time.minValue = 5
+        np_question_time.maxValue = 30
+
+        np_answer_time.minValue = 5
+        np_answer_time.maxValue = 30
+
         btn_start_quiz.setOnClickListener {
             // Start quiz with selected settings
             //Toast.makeText(applicationContext, "Starting with " + spn_src_type.selectedItem, Toast.LENGTH_SHORT).show()
-            val questionList = Globals.getAniQuestions(np_question_amt.value)
-            val intent = Intent(this, AniQuestionActivity::class.java)
-            intent.putExtra(Globals.userName, "QuizSetupUserName")
-            intent.putExtra(Globals.questionList, questionList)
+
+            val intent = Intent(this, MusicQuizActivity::class.java)
+            intent.putExtra(Globals.questionCount, np_question_amt.value)
+            intent.putExtra(Globals.questionTime, np_question_time.value)
+            intent.putExtra(Globals.answerTime, np_answer_time.value)
+
             startActivity(intent)
             finish()
         }
     }
 
 }
-*/
