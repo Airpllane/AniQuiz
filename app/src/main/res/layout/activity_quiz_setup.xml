@@ -73,6 +73,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="8dp"
+                        android:text="Sound only"
+                        android:textColor="@color/transparent_white"
+                        android:textSize="18sp" />
+
+                    <Space android:layout_weight="1" />
+
+                    <CheckBox
+                        android:id="@+id/cb_soundonly"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp" />
+                </TableRow>
+
+                <TableRow android:gravity="center">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
                         android:text="@string/questions"
                         android:textColor="@color/transparent_white"
                         android:textSize="18sp" />

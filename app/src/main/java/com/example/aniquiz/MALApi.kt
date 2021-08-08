@@ -36,6 +36,7 @@ object MALApi : DataAPI
                     }
                     aniMap[node.getInt("id")]!!["titles"]!!.add(alternativeTitles.getString("en"))
                     aniMap[node.getInt("id")]!!["titles"]!!.add(alternativeTitles.getString("ja"))
+                    aniMap[node.getInt("id")]!!["titles"]!!.removeIf(String::isEmpty)
                     aniMap[node.getInt("id")]!!["titles"] = aniMap[node.getInt("id")]!!["titles"]!!.distinct().toMutableList()
                 }
                 continuation.resume(aniMap.toMap())

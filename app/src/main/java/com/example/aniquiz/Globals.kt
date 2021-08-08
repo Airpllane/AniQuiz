@@ -5,13 +5,12 @@ import kotlin.random.Random
 object Globals
 {
     // Strings for intent extras
-    const val userName: String = "User"
     const val questionCount: String = "QuestionCount"
     const val questionTime: String = "QuestionTime"
     const val answerTime: String = "AnswerTime"
     const val score: String = "Score"
-    const val questionList: String = "QuestionList"
-    const val baseScore: String = "BaseScore"
+    const val mediaSrc: String = "MediaSrc"
+    const val soundOnly: String = "SoundOnly"
 
     // Local data
     private val localAniNames = mapOf(
@@ -41,11 +40,11 @@ object Globals
     // Current values, create as local
     var aniNames = localAniNames
     var aniCovers = localAniCovers
-    var themeSrc = ThemeSrc.Local
 
+    /*
     fun getBackgrounds(): List<Int>?
     {
-        // Collect all valid raw music files
+        // Collect all valid raw backgrounds
         val fields = R.drawable::class.java.declaredFields
         val BGs = mutableListOf<Int>()
         for (i in fields.indices)
@@ -57,6 +56,7 @@ object Globals
         }
         return BGs.toList()
     }
+
 
     private fun getLocalOps(): Map<Int, List<Int>>?
     {
@@ -80,6 +80,7 @@ object Globals
         }
         return OPs.toMap()
     }
+    */
 
     fun syncToLocal()
     {
@@ -87,28 +88,6 @@ object Globals
         aniNames = localAniNames
         aniCovers = localAniCovers
     }
-/*
-    suspend fun syncToJikan() : Boolean
-    {
-        // Set current anime list and covers to MAL top 50 (pulled from Jikan)
-        val jikanResponse = MALApi.getTop50Anime()
-        if(jikanResponse != null)
-        {
-            aniNames = jikanResponse.map { (key, value) ->
-                key to value.getOrDefault("title", "(Missing title)")
-            }.toMap()
-            aniCovers = jikanResponse.map { (key, value) ->
-                key to value.getOrDefault("cover", "https://banner2.cleanpng.com/20180402/tww/kisspng-emoji-iphone-text-messaging-sms-no-symbol-no-5ac1fb2a90a786.7966473015226621865925.jpg")
-            }.toMap()
-            return true
-        }
-        else
-        {
-            // Failed
-            return false
-        }
-    }
-    */
 
     suspend fun syncToMyMAL(amt: Int) : Boolean
     {
@@ -151,49 +130,6 @@ object Globals
             // Failed
             return false
         }
-    }
-
-
-
-    fun getAniQuestions(amt: Int): ArrayList<AniQuestion>
-    {
-        // Create a list of questions
-        var localOpPool:Map<Int, List<Int>>? = null
-        if(themeSrc == ThemeSrc.Local)
-        {
-            // Using local raw files
-            localOpPool = getLocalOps()!!.toMutableMap().filterKeys(aniNames::containsKey)
-        }
-        val questionList = ArrayList<AniQuestion>()
-        for (i in 1..amt)
-        {
-            when (Random.nextInt(0, 2))
-            {
-                0 ->
-                {
-                    // Generating theme question
-                    if(themeSrc == ThemeSrc.Local && localOpPool != null && localOpPool.isNotEmpty())
-                    {
-                        // Get themes from local raw files
-                        val randomID = Random.nextInt(localOpPool.size)
-                        questionList.add(AniQuestion(localOpPool.entries.elementAt(randomID).key, QType.Theme, localOpPool.entries.elementAt(randomID).value.random(), null))
-                    }
-                    else
-                    {
-                        // Theme will be streamed from API
-                        questionList.add(AniQuestion(aniNames.keys.random(), QType.Theme, null, null))
-                    }
-                }
-                1 ->
-                {
-                    // Generating cover question
-                    val randomID = Random.nextInt(aniCovers.size)
-                    questionList.add(AniQuestion(aniCovers.entries.elementAt(randomID).key, QType.Cover, null, aniCovers.entries.elementAt(randomID).value))
-                }
-            }
-        }
-
-        return questionList
     }
 
 }

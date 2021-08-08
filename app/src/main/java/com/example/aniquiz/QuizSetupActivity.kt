@@ -23,7 +23,7 @@ class QuizSetupActivity : AppCompatActivity()
         setContentView(R.layout.activity_quiz_setup)
 
         // Array of anime sources
-        val spnArray = arrayListOf("MAL Top 10 (Local)", "MAL Top 50 (Jikan)")
+        val spnArray = arrayListOf("MAL Top 10 (Local)")
         if (getSharedPreferences(applicationContext.packageName + "_preferences", Context.MODE_PRIVATE).getBoolean("mal_sync", false) &&
             !getSharedPreferences(applicationContext.packageName + "_preferences", Context.MODE_PRIVATE).getString("mal_access_token", null).isNullOrEmpty())
         {
@@ -123,35 +123,7 @@ class QuizSetupActivity : AppCompatActivity()
         spn_src_type.adapter = adapter
 
         // Array of music sources
-        val spnOpArray = arrayOf("Local files", "Music API (fast)", "Video API (slow)")
-        spn_src_music.onItemSelectedListener = object : OnItemSelectedListener
-        {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long)
-            {
-                when(parent!!.getItemAtPosition(position).toString())
-                {
-                    "Local files" ->
-                    {
-                        // Use only local data
-                        Globals.themeSrc = ThemeSrc.Local
-                    }
-                    "Music API (fast)" ->
-                    {
-                        // Use animethemes-api - faster, music and videos
-                        Globals.themeSrc = ThemeSrc.ATA
-                    }
-                    "Video API (slow)" ->
-                    {
-                        // Use anusic-api - slow, videos only
-                        Globals.themeSrc = ThemeSrc.AA
-                    }
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?)
-            {
-                Toast.makeText(applicationContext, "Nothing selected", Toast.LENGTH_SHORT).show()
-            }
-        }
+        val spnOpArray = arrayOf("Animethemes (audio/video)", "Anusic (video)")
         adapter = ArrayAdapter<String>(this, R.layout.spinner_item, spnOpArray)
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
         spn_src_music.adapter = adapter
@@ -168,12 +140,13 @@ class QuizSetupActivity : AppCompatActivity()
 
         btn_start_quiz.setOnClickListener {
             // Start quiz with selected settings
-            //Toast.makeText(applicationContext, "Starting with " + spn_src_type.selectedItem, Toast.LENGTH_SHORT).show()
 
             val intent = Intent(this, MusicQuizActivity::class.java)
             intent.putExtra(Globals.questionCount, np_question_amt.value)
             intent.putExtra(Globals.questionTime, np_question_time.value)
             intent.putExtra(Globals.answerTime, np_answer_time.value)
+            intent.putExtra(Globals.mediaSrc, spn_src_music.selectedItem.toString())
+            intent.putExtra(Globals.soundOnly, cb_soundonly.isChecked)
 
             startActivity(intent)
             finish()

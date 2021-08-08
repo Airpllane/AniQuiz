@@ -1,20 +1,24 @@
 package com.example.aniquiz
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Chronometer
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.android.synthetic.main.activity_music_quiz.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
+import kotlin.properties.Delegates
 
 
 class MusicQuizActivity : AppCompatActivity()
@@ -28,15 +32,37 @@ class MusicQuizActivity : AppCompatActivity()
     private var answerTime: Int = 5000
     private var animeBank: List<Int>? = null
     private var questionCount: Int = 5
-    private var questionNum: Int = 0
+    private var questionNum: Int by Delegates.observable(0) { property, oldValue, newValue ->
+        // Update shown score whenever it changes
+        tv_qnum.text = "" + questionNum + "/" + questionCount
+    }
     private var correctAnswers: Int = 0
+    private var soundOnly: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_quiz)
 
-        mediaAPI = ATAApi
+        val mediaSrc = intent.getStringExtra(Globals.mediaSrc)
+        if(mediaSrc == "Animethemes (audio/video)")
+        {
+            mediaAPI = ATAApi
+        }
+        else if (mediaSrc == "Anusic (video)")
+        {
+            mediaAPI = AAApi
+        }
+        else
+        {
+            Toast.makeText(applicationContext, "No media API", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
+        if(intent.getBooleanExtra(Globals.soundOnly, false))
+        {
+            soundOnly = true
+        }
 
         preferences = getSharedPreferences(applicationContext.packageName + "_preferences", Context.MODE_PRIVATE)
 
@@ -47,16 +73,28 @@ class MusicQuizActivity : AppCompatActivity()
         questionCount = intent.getIntExtra(Globals.questionCount, 5)
         questionTime = intent.getIntExtra(Globals.questionTime, 10) * 1000
         answerTime = intent.getIntExtra(Globals.answerTime, 5) * 1000
+        questionNum = 0
 
         cm_answertimer.isCountDown = true
 
         tv_title.text = "Loading..."
+        pv_video.defaultArtwork = ContextCompat.getDrawable(applicationContext, R.drawable.sound)
 
         CoroutineScope(Main).launch {
-            animeBank = mediaAPI!!.getAnimeList()!!.intersect(Globals.aniNames.keys).toList()
+            var mediaBank: List<Int>? = null
+            while(mediaBank == null)
+            {
+                mediaBank = mediaAPI!!.getAnimeList()
+                if(mediaBank == null)
+                {
+                    Toast.makeText(applicationContext, "Failed to get media bank, retrying...", Toast.LENGTH_SHORT).show()
+                }
+            }
+            animeBank = mediaBank.intersect(Globals.aniNames.keys).toList()
             if (animeBank.isNullOrEmpty())
             {
-                Toast.makeText(applicationContext, "Empty bank", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Failed to find any themes", Toast.LENGTH_SHORT).show()
+                finish()
             }
             initialPhase()
         }
@@ -98,10 +136,25 @@ class MusicQuizActivity : AppCompatActivity()
 
 
         CoroutineScope(Main).launch {
-            val link = mediaAPI?.getThemeAudio(questionID!!) ?: mediaAPI?.getThemeVideo(questionID!!) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
+            var link: String? = null
+            while(link == null)
+            {
+                if (soundOnly)
+                {
+                    link = mediaAPI?.getThemeAudio(questionID!!) ?: mediaAPI?.getThemeVideo(questionID!!)
+                }
+                else
+                {
+                    link = mediaAPI?.getThemeVideo(questionID!!)
+                }
+                if(link == null)
+                {
+                    Toast.makeText(applicationContext, "Failed to get link, retrying...", Toast.LENGTH_SHORT).show()
+                }
+            }
             withContext(Dispatchers.Main)
             {
-                Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
+                //Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
             }
             withContext(Dispatchers.Main)
             {
@@ -118,6 +171,7 @@ class MusicQuizActivity : AppCompatActivity()
         questionNum++
         actv_title.isEnabled = true
         pv_video.player = exoPlayer
+        pv_video.visibility = View.INVISIBLE
         exoPlayer?.play()
 
         cm_answertimer.base = SystemClock.elapsedRealtime() + questionTime
@@ -134,6 +188,7 @@ class MusicQuizActivity : AppCompatActivity()
     private fun answerPhase()
     {
         tv_title.text = Globals.aniNames[questionID!!]!![0]
+        pv_video.visibility = View.VISIBLE
 
         if (actv_title.text.toString() in Globals.aniNames[questionID!!]!!)
         {
@@ -199,10 +254,25 @@ class MusicQuizActivity : AppCompatActivity()
         })
 
         CoroutineScope(Main).launch {
-            val link = mediaAPI?.getThemeAudio(questionID!!) ?: mediaAPI?.getThemeVideo(questionID!!) ?: "https://animethemes.moe/video/AkuNoHana-OP1.webm"
+            var link: String? = null
+            while(link == null)
+            {
+                if (soundOnly)
+                {
+                    link = mediaAPI?.getThemeAudio(questionID!!) ?: mediaAPI?.getThemeVideo(questionID!!)
+                }
+                else
+                {
+                    link = mediaAPI?.getThemeVideo(questionID!!)
+                }
+                if(link == null)
+                {
+                    Toast.makeText(applicationContext, "Failed to get link, retrying...", Toast.LENGTH_SHORT).show()
+                }
+            }
             withContext(Dispatchers.Main)
             {
-                Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
+                //Toast.makeText(applicationContext, "Got link: " + link, Toast.LENGTH_SHORT).show()
             }
             withContext(Dispatchers.Main)
             {

@@ -23,6 +23,17 @@
             android:orientation="vertical"
             android:padding="8dp">
 
+            <TextView
+                android:id="@+id/tv_qnum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                tools:text="0/10" />
+
             <com.google.android.exoplayer2.ui.PlayerView
                 android:id="@+id/pv_video"
                 android:layout_width="match_parent"
@@ -56,6 +67,7 @@
                 android:textColor="@color/white"
                 android:textSize="25sp"
                 android:textStyle="bold"
+                android:hint="Enter title..."
                 android:enabled="false"
                 tools:text="Title"/>
 

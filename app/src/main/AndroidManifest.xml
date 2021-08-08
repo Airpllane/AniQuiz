@@ -15,7 +15,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AniQuiz">
-        <activity android:name=".MusicQuizActivity"></activity>
+        <activity
+            android:name=".MusicQuizActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/NoActionBarTheme"/>
         <activity
             android:name=".QuizSetupActivity"
             android:screenOrientation="portrait"
@@ -35,10 +38,6 @@
             android:theme="@style/NoActionBarTheme" />
         <activity
             android:name=".ResultActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/NoActionBarTheme" />
-        <activity
-            android:name=".AniQuestionActivity"
             android:screenOrientation="portrait"
             android:theme="@style/NoActionBarTheme" />
         <activity
